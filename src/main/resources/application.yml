@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: application-stg.yml
+server:
+  port: 8082

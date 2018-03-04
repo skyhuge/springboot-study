@@ -1,0 +1,10 @@
+2018-03-04 11:11:23.790|INFO|org.springframework.boot.StartupInfoLogger|main|Starting StudyApplication on Doraemoner-MacBook-Pro.local with PID 34168 (/Users/doraemoner/IdeaProjects/study/target/classes started by doraemoner in /Users/doraemoner/IdeaProjects/study)
+2018-03-04 11:11:23.793|DEBUG|org.springframework.boot.StartupInfoLogger|main|Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE
+2018-03-04 11:11:23.795|INFO|org.springframework.boot.SpringApplication|main|No active profile set, falling back to default profiles: default
+2018-03-04 11:11:26.197|INFO|org.springframework.boot.StartupInfoLogger|main|Started StudyApplication in 2.922 seconds (JVM running for 3.83)
+2018-03-04 11:12:04.030|DEBUG|com.local.study.controller.FileUploadController|http-nio-8080-exec-1|upload start ...
+2018-03-04 11:12:04.032|DEBUG|com.local.study.controller.FileUploadController|http-nio-8080-exec-1|upload finished ...
+2018-03-04 11:58:12.469  INFO  [main] org.springframework.boot.StartupInfoLogger : Starting StudyApplication on Doraemoner-MacBook-Pro.local with PID 34214 (/Users/doraemoner/IdeaProjects/study/target/classes started by doraemoner in /Users/doraemoner/IdeaProjects/study)
+2018-03-04 11:58:12.475  DEBUG  [main] org.springframework.boot.StartupInfoLogger : Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE
+2018-03-04 11:58:12.476  INFO  [main] org.springframework.boot.SpringApplication : No active profile set, falling back to default profiles: default
+2018-03-04 11:58:14.717  INFO  [main] org.springframework.boot.StartupInfoLogger : Started StudyApplication in 2.745 seconds (JVM running for 3.68)
