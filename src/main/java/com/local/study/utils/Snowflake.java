@@ -1,3 +1,5 @@
+package com.local.study.utils;
+
 public class Snowflake {
 
 	private final long twepoch = 1288834974657L;
@@ -30,7 +32,7 @@ public class Snowflake {
 	 * 构造
 	 * @param workerId 终端ID
 	 * @param datacenterId 数据中心ID
-	 * @param isUseSystemClock 是否使用{@link SystemClock} 获取当前时间戳
+	 * @param isUseSystemClock 是否使用 获取当前时间戳
 	 */
 	public Snowflake(long workerId, long datacenterId, boolean isUseSystemClock) {
 		if (workerId > maxWorkerId || workerId < 0) {
@@ -49,7 +51,7 @@ public class Snowflake {
 	 * @return ID
 	 */
 	public synchronized long nextId() {
-		long timestamp = useSystemClock ? SystemClock.now() : System.currentTimeMillis();
+		long timestamp = System.currentTimeMillis();
 		if (timestamp < lastTimestamp) {
 			throw new RuntimeException(String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
 		}
@@ -68,9 +70,9 @@ public class Snowflake {
 	}
 
 	private long tilNextMillis(long lastTimestamp) {
-		long timestamp = useSystemClock ? SystemClock.now() : System.currentTimeMillis();
+		long timestamp = System.currentTimeMillis();
 		while (timestamp <= lastTimestamp) {
-			timestamp = useSystemClock ? SystemClock.now() : System.currentTimeMillis();
+			timestamp = System.currentTimeMillis();
 		}
 		return timestamp;
 	}

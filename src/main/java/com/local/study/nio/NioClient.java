@@ -8,6 +8,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
 
 public class NioClient {
@@ -31,6 +32,7 @@ public class NioClient {
                 iterator.remove();
 
                 if (key.isConnectable()) {
+
                     channel = (SocketChannel) key.channel();
                     if (channel.isConnectionPending()) {
                         System.out.println("client connected.");
@@ -41,7 +43,7 @@ public class NioClient {
                         System.out.println("client send : hello server.");
                         channel.write(write);
                     }
-                    channel.register(selector, SelectionKey.OP_READ);
+                    channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
                 }
                 else if (key.isReadable()) {
                     channel = (SocketChannel) key.channel();
@@ -50,16 +52,17 @@ public class NioClient {
                     if (i > 0) {
                         System.out.println("client echo: " + new String(read.array(), 0, i));
                     }
-                    channel.register(selector, SelectionKey.OP_WRITE);
                 }
                 else if (key.isWritable()) {
                     channel = (SocketChannel) key.channel();
+                    Scanner scanner = new Scanner(System.in);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(scanner.nextLine());
                     write.clear();
-                    write.put(new Date().toString().getBytes());
+                    write.put(stringBuilder.toString().getBytes());
                     write.flip();
                     channel.write(write);
-                    System.out.println("client send: " + new Date().toString());
-                    channel.register(selector, SelectionKey.OP_READ);
+                    System.out.println("client send: " + stringBuilder.toString());
                 }
             }
         }
