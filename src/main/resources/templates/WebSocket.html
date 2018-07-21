@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Client</title>
+</head>
+<body>
+
+<script type="text/javascript">
+    var socket;
+    if (! window.WebSocket){
+        // window.WebSocket = window.MozWebSocket;
+        alert("WTF");
+    }
+    if (window.WebSocket){
+        socket = new WebSocket("ws://localhost:8080/websocket");
+        socket.onopen = function (ev) {
+            var tx = document.getElementById('responseText');
+            tx.value = "open webSocket success!";
+        };
+        socket.onmessage = function (ev) {
+            var tx = document.getElementById('responseText');
+            tx.value = "";
+            tx.value = ev.data;
+        };
+        socket.onclose = function (ev) {
+            var tx = document.getElementById('responseText');
+            tx.value = "";
+            tx.value = "close webSocket";
+        }
+    }else {
+        alert("unsupported browser");
+    }
+    
+    function send(msg) {
+        if (!window.WebSocket){
+            return;
+        }
+        if (socket.readyState === WebSocket.OPEN){
+            socket.send(msg);
+        }else {
+            alert("webSocket connection failed.");
+        }
+    }
+</script>
+<form onsubmit="return false;">
+    <input type="text" name="message" value="Netty"/>
+    <br>
+    <br>
+    <input type="button" value="send message" onclick="send(this.form.message.value)"/>
+    <hr color="blue"/>
+    <h3>Server Response</h3>
+    <textarea id="responseText" style="width: 500px;height: 300px;"/>
+</form>
+</body>
+</html>
