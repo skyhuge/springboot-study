@@ -1,6 +1,5 @@
 package com.local.study.netty.diy.codec;
 
-import com.local.study.netty.diy.message.NettyMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
