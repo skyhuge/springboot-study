@@ -10,12 +10,19 @@ import java.io.ObjectInputStream;
 public class NettyMessageDecoder extends LengthFieldBasedFrameDecoder {
     
     public NettyMessageDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) {
-        super(maxFrameLength, lengthFieldOffset, lengthFieldLength);
+        super(maxFrameLength, lengthFieldOffset, lengthFieldLength,0,4);
     }
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        ByteBuf byteBuf = (ByteBuf) super.decode(ctx, in);
+        Object decode;
+        try{
+            decode = super.decode(ctx, in);
+        }catch (Exception e){
+            return null;
+        }
+
+        ByteBuf byteBuf = (ByteBuf)decode ;
         if (null == byteBuf){
             return null;
         }

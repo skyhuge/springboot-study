@@ -5,6 +5,8 @@ import com.local.study.netty.diy.message.MessageType;
 import com.local.study.netty.diy.message.NettyMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -17,9 +19,12 @@ public class LoginAuthRespHandler extends SimpleChannelInboundHandler{
 
     private Map<String,Boolean> map =  new ConcurrentHashMap<>();
 
+    private static final Logger logger = LoggerFactory.getLogger(LoginAuthRespHandler.class);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
 
+        logger.info("channelRead start");
         NettyMessage msg = (NettyMessage) o;
         if (msg != null && msg.getHeader().getType() == MessageType.LOGIN_REQ){
             System.out.println("login request");
@@ -45,12 +50,14 @@ public class LoginAuthRespHandler extends SimpleChannelInboundHandler{
             }
             ctx.writeAndFlush(resp);
         }else {
-            ctx.fireChannelRead(o);
+
+            ctx.writeAndFlush(buildRespMsg(MessageType.LOGIN_OK));
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("exceptionCaught, cause:",cause);
         map.remove(ctx.channel().remoteAddress().toString());// clear cache
         ctx.close();
         ctx.fireExceptionCaught(cause);

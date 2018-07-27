@@ -8,7 +8,7 @@ public class Header implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    private int crc = 0xabef0101;
+    private int crc = 1;
 
     private int length;
 

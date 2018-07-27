@@ -1,5 +1,6 @@
 package com.local.study.netty.diy.bootstrap;
 
+import com.local.study.netty.diy.base.Constant;
 import com.local.study.netty.diy.codec.NettyMessageDecoder;
 import com.local.study.netty.diy.codec.NettyMessageEncoder;
 import com.local.study.netty.diy.handler.HeartBeatRespHandler;
@@ -16,24 +17,31 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 public class Server {
 
     public static void main(String[] args) {
-        NioEventLoopGroup boss = new NioEventLoopGroup();
-        NioEventLoopGroup worker = new NioEventLoopGroup();
+        NioEventLoopGroup boss = new NioEventLoopGroup(2);
+        NioEventLoopGroup worker = new NioEventLoopGroup(2);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(boss,worker).channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG,1024)
                     .option(ChannelOption.SO_REUSEADDR,true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new NettyMessageDecoder(1024,0,4))
+                            ch.pipeline()
+                                    //out
                                     .addLast(new NettyMessageEncoder())
+                                    //duplex
                                     .addLast(new ReadTimeoutHandler(30))
+                                    //in
+                                    .addLast(new NettyMessageDecoder(1024,0,4))
+                                    //in
                                     .addLast(new LoginAuthRespHandler())
+                                    //in
                                     .addLast(new HeartBeatRespHandler());
+
                         }
                     });
-            ChannelFuture sync = b.bind().sync();
+            ChannelFuture sync = b.bind(Constant.PORT).sync();
             sync.channel().closeFuture().sync();
         }catch (Exception e){
             e.printStackTrace();
