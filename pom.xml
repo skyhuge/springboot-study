@@ -104,10 +104,17 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.12.Final</version>
+			<version>4.1.22.Final</version>
 		</dependency>
 
-	</dependencies>
+        <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+    </dependencies>
 
 	<build>
 		<plugins>

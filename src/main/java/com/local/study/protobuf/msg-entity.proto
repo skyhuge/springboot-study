@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_outer_classname = "ProtobufMessage";//生成的数据访问类的类名
+
+message NettyMsg{
+
+    message Header {
+        int32 type = 1;
+        int32 priority = 2;
+    }
+
+    Header header = 1;
+
+    message Body {
+        string body = 1;
+    }
+
+    Body body = 2;
+}
