@@ -18,9 +18,8 @@ public class HeartBeatRespHandler extends SimpleChannelInboundHandler{
         NettyMessage msg = (NettyMessage) o;
         if (null!=msg && msg.getHeader().getType() == MessageType.HEART_REQ){
             ctx.writeAndFlush(buildRespMsg());
-        }else {
-            ctx.fireChannelRead(o);
         }
+
     }
 
     private NettyMessage buildRespMsg(){

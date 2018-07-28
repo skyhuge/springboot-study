@@ -19,15 +19,13 @@ public class HeartBeatReqHandler extends SimpleChannelInboundHandler{
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-        logger.info("channelRead start");
         NettyMessage msg = (NettyMessage) o;
         if (null != msg && msg.getHeader().getType() == MessageType.HEART_RESP){
-            logger.info("received heart beat resp: " + msg);
+            logger.info("received heart beat resp: {}", msg);
         }
         else if (null != msg && msg.getHeader().getType() == MessageType.LOGIN_RESP){
-            heart = ctx.executor().scheduleAtFixedRate(new HeartBeatTask(ctx),0,5000, TimeUnit.MILLISECONDS);
-        }else {
-            ctx.fireChannelRead(o);
+            heart = ctx.executor().scheduleAtFixedRate(
+                    new HeartBeatTask(ctx),0,60 , TimeUnit.SECONDS);
         }
 
     }

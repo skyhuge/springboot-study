@@ -6,7 +6,7 @@ public class MessageType {
 
     public static final byte LOGIN_RESP = 2;
 
-    public static final byte LOGIN_OK = 0;
+    public static final byte LOGIN_OK = 8;
 
     public static final byte LOGIN_ER = 4;
 

@@ -4,12 +4,17 @@ import com.local.study.netty.diy.codec.NettyMessageDecoder;
 import com.local.study.netty.diy.codec.NettyMessageEncoder;
 import com.local.study.netty.diy.handler.HeartBeatReqHandler;
 import com.local.study.netty.diy.handler.LoginAuthReqHandler;
+import com.local.study.netty.diy.message.Header;
+import com.local.study.netty.diy.message.MessageType;
+import com.local.study.netty.diy.message.NettyMessage;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -37,9 +42,9 @@ public class Client {
                                     //out
                                     .addLast(new NettyMessageEncoder())
                                     //duplex
-                                    .addLast(new ReadTimeoutHandler(30))
+//                                    .addLast(new ReadTimeoutHandler(30))
                                     //in
-                                    .addLast(new NettyMessageDecoder(1024*1024,0,4))
+                                    .addLast(new NettyMessageDecoder(1024,0,4))
                                     //in
                                     .addLast(new LoginAuthReqHandler())
                                     //in
@@ -51,28 +56,44 @@ public class Client {
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             while (true){
 
-                channel.writeAndFlush(in.readLine() + "\r\n").addListener(new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (!future.isSuccess()){
-                            System.out.println("cause: " + future.cause());
+                String s = in.readLine();
+                NettyMessage msg = new NettyMessage();
+                if (s.equals("hello")){
+                    Header header = new Header();
+                    header.setType(MessageType.LOGIN_REQ);
+                    msg.setHeader(header);
+                }else {
+                    System.out.println("it does not work.");
+                    continue;
+                }
+                if (channel.isWritable()){
+
+                    channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (!future.isSuccess()){
+                                System.out.println("cause: " + future.cause());
+                            }
+
                         }
-                    }
-                });
+                    });
+                }else {
+                    System.out.println("channel closed ?");
+                }
             }
         }
         catch (Exception e){
             e.printStackTrace();
             group.shutdownGracefully();
         }
-        finally {
+        /*finally {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     start(LOCAL_IP,PORT);
                 }
             });
-        }
+        }*/
     }
 
     public static void main(String[] args) {

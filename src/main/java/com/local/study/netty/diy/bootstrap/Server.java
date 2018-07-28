@@ -12,7 +12,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 
 public class Server {
 
@@ -23,7 +22,7 @@ public class Server {
             ServerBootstrap b = new ServerBootstrap();
             b.group(boss,worker).channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG,1024)
-                    .option(ChannelOption.SO_REUSEADDR,true)
+                    .childOption(ChannelOption.SO_KEEPALIVE,true)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
@@ -31,7 +30,7 @@ public class Server {
                                     //out
                                     .addLast(new NettyMessageEncoder())
                                     //duplex
-                                    .addLast(new ReadTimeoutHandler(30))
+//                                    .addLast(new ReadTimeoutHandler(30))
                                     //in
                                     .addLast(new NettyMessageDecoder(1024,0,4))
                                     //in

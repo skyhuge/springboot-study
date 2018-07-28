@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,15 +25,14 @@ public class LoginAuthRespHandler extends SimpleChannelInboundHandler{
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
 
-        logger.info("channelRead start");
         NettyMessage msg = (NettyMessage) o;
         if (msg != null && msg.getHeader().getType() == MessageType.LOGIN_REQ){
-            System.out.println("login request");
+
             SocketAddress socketAddress = ctx.channel().remoteAddress();
             String address = socketAddress.toString();
             NettyMessage resp ;
             if (map.containsKey(address)){
-                resp = buildRespMsg(MessageType.LOGIN_ER);
+                resp = buildRespMsg(MessageType.LOGIN_ER,"you already login.");
             }
             else {
                 InetSocketAddress addr = (InetSocketAddress) socketAddress;
@@ -45,13 +45,13 @@ public class LoginAuthRespHandler extends SimpleChannelInboundHandler{
                         break;
                     }
                 }
-                resp = ok ? buildRespMsg(MessageType.LOGIN_OK)
-                        : buildRespMsg(MessageType.LOGIN_ER);
+                resp = ok ? buildRespMsg(MessageType.LOGIN_OK,"you are welcome.")
+                        : buildRespMsg(MessageType.LOGIN_ER,"you already login.");
             }
             ctx.writeAndFlush(resp);
         }else {
 
-            ctx.writeAndFlush(buildRespMsg(MessageType.LOGIN_OK));
+            ctx.fireChannelRead(o);
         }
     }
 
@@ -63,9 +63,14 @@ public class LoginAuthRespHandler extends SimpleChannelInboundHandler{
         ctx.fireExceptionCaught(cause);
     }
 
-    private NettyMessage buildRespMsg(byte type){
+    private NettyMessage buildRespMsg(byte type, Object ... obj){
         NettyMessage msg = new NettyMessage();
         Header header = new Header();
+        if (obj.length > 0){
+            Map<String,Object> map = new HashMap<>();
+            map.put("msg",obj);
+            header.setAttachment(map);
+        }
         header.setType(MessageType.LOGIN_RESP);
         msg.setHeader(header);
         msg.setBody(type);

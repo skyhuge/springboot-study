@@ -40,6 +40,7 @@ public class SimpleChatServerHandler extends SimpleChannelInboundHandler<String>
             if (channel != incoming){
                 channel.writeAndFlush("[" + incoming.remoteAddress() + "]" + s + "\n");
             } else {
+                System.out.println("[" + incoming.remoteAddress() + "] : " + s);
             	channel.writeAndFlush("[you]" + s + "\n");
             }
         }

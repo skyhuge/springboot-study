@@ -3,13 +3,8 @@ package com.local.study.netty.diy.handler;
 import com.local.study.netty.diy.message.Header;
 import com.local.study.netty.diy.message.MessageType;
 import com.local.study.netty.diy.message.NettyMessage;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
-import io.netty.util.DefaultAttributeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,24 +12,26 @@ public class LoginAuthReqHandler extends SimpleChannelInboundHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginAuthReqHandler.class);
 
-    private static final AttributeKey<Boolean> KEY = AttributeKey.newInstance("active");
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object o) throws Exception {
-        logger.info("channelRead0");
         NettyMessage msg = (NettyMessage) o;
+        //login
         if (msg != null && msg.getHeader().getType() == MessageType.LOGIN_RESP) {
             logger.info("this is login response");
             byte body = (byte) msg.getBody();
-            if (body != 0) {
-                logger.info("handshake failed.");
-                ctx.close();
+
+            if (body != MessageType.LOGIN_OK) {
+                logger.info("handshake failed. {}",msg.getHeader().getAttachment().get("msg"));
             } else {
-                logger.info("handshake success.");
+                logger.info("handshake success. {}",msg.getHeader().getAttachment().get("msg"));
+
+                // the msg will be discard if it reached the end of the pipeline.
                 ctx.fireChannelRead(o);
             }
-        } else {
-            ctx.writeAndFlush(buildLoginMsg());
+        }
+        //heart-beat
+        else {
+            ctx.fireChannelRead(o);
         }
     }
 
