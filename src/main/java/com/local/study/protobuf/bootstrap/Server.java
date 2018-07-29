@@ -1,21 +1,18 @@
 package com.local.study.protobuf.bootstrap;
 
-import com.google.protobuf.Message;
 import com.local.study.netty.diy.base.Constant;
+import com.local.study.protobuf.ProtobufMessage;
+import com.local.study.protobuf.handler.ServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-
-import java.util.concurrent.TimeUnit;
 
 public class Server {
 
@@ -31,13 +28,15 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new ProtobufVarint32FrameDecoder())
-                                    .addLast(new ProtobufDecoder(Message.getDefaultInstance()))
-                                    .addLast(new ProtobufVarint32LengthFieldPrepender())
+//                                    .addLast(new ProtobufVarint32FrameDecoder())
+                                    .addLast(new LengthFieldBasedFrameDecoder(1024,0,4))
+                                    .addLast(new ProtobufDecoder(ProtobufMessage.NettyMsg.getDefaultInstance()))
+//                                    .addLast(new ProtobufVarint32LengthFieldPrepender())
                                     .addLast(new ProtobufEncoder())
-                                    .addLast(new IdleStateHandler(100, 0, 0,
-                                            TimeUnit.SECONDS))
-                                    .addLast(new HeartBeatServerHandler())
+                                    .addLast(new ServerHandler())
+//                                    .addLast(new IdleStateHandler(100, 0, 0,
+//                                            TimeUnit.SECONDS))
+//                                    .addLast(new HeartBeatServerHandler())
                             ;
 
                         }
