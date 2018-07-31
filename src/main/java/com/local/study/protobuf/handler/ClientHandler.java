@@ -11,10 +11,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<ProtobufMessage.N
     protected void channelRead0(ChannelHandlerContext ctx, ProtobufMessage.NettyMsg msg) throws Exception {
 
         if (msg.getHeader().getType() == Constant.LOGIN){
-            System.out.println("so," + msg.getBody());
+            System.out.println("so, " + msg.getBody().getBody());
         }
         else {
-            System.out.println("received data from server: " + msg.getBody());
+            System.out.println("received data from server: " + msg.getBody().getBody());
         }
     }
 }

@@ -18,8 +18,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<ProtobufMessage.N
             System.out.println("this is a login request from client: ["+ ctx.channel().remoteAddress().toString() +"]");
             byteBuf = MsgBuilder.buildMsg(Constant.LOGIN, "you are welcome");
         }else {
-            System.out.println("received data from client: ["+ ctx.channel().remoteAddress().toString() +"]" + ": #" + msg.getBody() + "#");
-            byteBuf = MsgBuilder.buildMsg(Constant.CHAT,"did you say "+ msg.getBody());
+            System.out.println("["+ ctx.channel().remoteAddress().toString() +"]" + ": " + msg.getBody().getBody() );
+            byteBuf = MsgBuilder.buildMsg(Constant.CHAT,"did you say "+ msg.getBody().getBody());
         }
 
         ctx.writeAndFlush(byteBuf);

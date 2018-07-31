@@ -36,7 +36,7 @@ public class Client {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
 //                                    .addLast(new ProtobufVarint32FrameDecoder())
-                                    .addLast(new LengthFieldBasedFrameDecoder(1024,0,4))
+                                    .addLast(new LengthFieldBasedFrameDecoder(1024,0,4,0,4))
                                     .addLast(new ProtobufDecoder(ProtobufMessage.NettyMsg.getDefaultInstance()))
 //                                    .addLast(new ProtobufVarint32LengthFieldPrepender())
                                     .addLast(new ProtobufEncoder())
@@ -55,7 +55,6 @@ public class Client {
                 } else {
                     msg = MsgBuilder.buildMsg(Constant.CHAT, s);
                 }
-
                 if (channel.isWritable()) {
 
                     channel.writeAndFlush(msg).addListener(new ChannelFutureListener() {

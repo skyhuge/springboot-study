@@ -24,7 +24,7 @@ public class MsgBuilder {
 
         byte[] bytes = nettyMsg.toByteArray();
         ByteBuf buffer = Unpooled.buffer(bytes.length + 4);
-        buffer.writeByte(builder1.getPriority());
+        buffer.writeInt(bytes.length);
         buffer.writeBytes(bytes);
         return buffer;
     }

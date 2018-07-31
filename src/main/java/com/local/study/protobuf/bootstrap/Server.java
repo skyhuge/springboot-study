@@ -29,7 +29,7 @@ public class Server {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
 //                                    .addLast(new ProtobufVarint32FrameDecoder())
-                                    .addLast(new LengthFieldBasedFrameDecoder(1024,0,4))
+                                    .addLast(new LengthFieldBasedFrameDecoder(1024,0,4,0,4))
                                     .addLast(new ProtobufDecoder(ProtobufMessage.NettyMsg.getDefaultInstance()))
 //                                    .addLast(new ProtobufVarint32LengthFieldPrepender())
                                     .addLast(new ProtobufEncoder())
