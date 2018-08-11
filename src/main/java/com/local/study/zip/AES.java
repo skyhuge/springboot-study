@@ -9,7 +9,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.security.SecureRandom;
 
 public class AES {
@@ -23,13 +22,15 @@ public class AES {
      *            加密需要的密码
      * @return 密文
      */
-    public static byte[] encrypt(String content, String password) {
+    public static byte[] encrypt(byte[] content, String password) {
         try {
-            KeyGenerator kgen = KeyGenerator.getInstance("AES");// 创建AES的Key生产者
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
 
-            kgen.init(128, new SecureRandom(password.getBytes()));// 利用用户密码作为随机数初始化出
-            // 128位的key生产者
-            //加密没关系，SecureRandom是生成安全随机数序列，password.getBytes()是种子，只要种子相同，序列就一样，所以解密只要有password就行
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+
+            random.setSeed(password.getBytes());
+
+            kgen.init(128, random);
 
             SecretKey secretKey = kgen.generateKey();// 根据用户密码，生成一个密钥
 
@@ -39,11 +40,9 @@ public class AES {
 
             Cipher cipher = Cipher.getInstance("AES");// 创建密码器
 
-            byte[] byteContent = content.getBytes("utf-8");
-
             cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化为加密模式的密码器
 
-            byte[] result = cipher.doFinal(byteContent);// 加密
+            byte[] result = cipher.doFinal(content);// 加密
 
             return result;
 
@@ -66,7 +65,11 @@ public class AES {
     public static byte[] decrypt(byte[] content, String password) {
         try {
             KeyGenerator kgen = KeyGenerator.getInstance("AES");// 创建AES的Key生产者
-            kgen.init(128, new SecureRandom(password.getBytes()));
+
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+
+            random.setSeed(password.getBytes());
+            kgen.init(128, random);
             SecretKey secretKey = kgen.generateKey();// 根据用户密码，生成一个密钥
             byte[] enCodeFormat = secretKey.getEncoded();// 返回基本编码格式的密钥
             SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");// 转换为AES专用密钥
@@ -82,24 +85,35 @@ public class AES {
     }
 
     public static void main(String[] args) throws Exception{
-        String key = "1234567890123456";
-        byte[] bytes = IOUtils.toByteArray(new FileReader(new File("C:\\Users\\Administrator\\Desktop\\111")), "utf-8");
+        String key = "1238712345678909";
+        byte[] bytes = IOUtils.toByteArray(new FileReader(new File("/Users/doraemoner/Documents/111")), "utf-8");
         System.out.println("bytes: " + bytes.length);
 
-        byte[] encrypt = encrypt(new String(bytes), key);
-        System.out.println("encrypt: " + encrypt.length);
-        IOUtils.write(encrypt,new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\aaa")));
 
-        byte[] deflate = ZipUtil.deflate(encrypt);
+        byte[] deflate = ZipUtil.deflate(bytes);
         System.out.println("deflate: " + deflate.length);
-        IOUtils.write(deflate,new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\bbb")));
+        IOUtils.write(deflate,new FileOutputStream(new File("/Users/doraemoner/Documents/a")));
 
-        byte[] inflate = ZipUtil.inflate(deflate);
-        System.out.println("inflate: " + inflate.length);
-        IOUtils.write(inflate,new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\ccc")));
+        byte[] encrypt = encrypt(deflate, key);//加密后大小没变？
+        System.out.println("encrypt: " + encrypt.length);
 
-        byte[] decrypt = decrypt(inflate, key);
+        String hex = Codec.byteToHex(encrypt);//转十六进制后变成2倍？考虑Base64
+        System.out.println("hex: " + hex.getBytes().length);
+        IOUtils.write(encrypt,new FileOutputStream(new File("/Users/doraemoner/Documents/b")));
+        IOUtils.write(hex,new FileOutputStream(new File("/Users/doraemoner/Documents/bb")),"utf-8");
+
+
+        byte[] hexToByte = Codec.hexToByte(hex);
+        System.out.println("hexToByte: " + hexToByte.length);
+
+//        byte[] decrypt = decrypt(encrypt, key);
+        byte[] decrypt = decrypt(hexToByte, key);
         System.out.println("decrypt: " + decrypt.length);
-        IOUtils.write(decrypt,new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\ddd")));
+        IOUtils.write(decrypt,new FileOutputStream(new File("/Users/doraemoner/Documents/c")));
+
+        byte[] inflate = ZipUtil.inflate(decrypt);
+        System.out.println("inflate: " + inflate.length);
+        IOUtils.write(inflate,new FileOutputStream(new File("/Users/doraemoner/Documents/d")));
+
     }
 }
