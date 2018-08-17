@@ -72,6 +72,19 @@ public class ZipUtil {
         return bos.toByteArray();
     }
 
+    public static byte[] deflate(byte[] bytes,Deflater compressor){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        compressor.setInput(bytes);
+        compressor.finish();
+        final byte[] buf = new byte[2048];
+        int count;
+        while ((count = compressor.deflate(buf)) != 0) {
+            bos.write(buf, 0, count);
+        }
+        compressor.reset();
+        return bos.toByteArray();
+    }
+
     public static byte[] inflate(byte[] bytes) throws Exception{
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Inflater inflater = new Inflater();
@@ -83,5 +96,35 @@ public class ZipUtil {
         }
         inflater.end();
         return bos.toByteArray();
+    }
+
+    public static void inflate(byte[] bytes,Inflater inflater, OutputStream writer) throws Exception{
+        inflater.setInput(bytes);
+        final byte[] buf = new byte[2048];
+        int count;
+        while ((count = inflater.inflate(buf)) > 0) {
+            writer.write(buf, 0, count);
+        }
+        inflater.reset();
+    }
+
+    public static byte[] inflate(byte[] bytes,Inflater inflater) throws Exception{
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        inflater.setInput(bytes);
+        final byte[] buf = new byte[2048];
+        int count;
+        while ((count = inflater.inflate(buf)) != 0) {
+            bos.write(buf, 0, count);
+        }
+        inflater.reset();
+        return bos.toByteArray();
+    }
+
+    public static Deflater getDeflater(int level){
+        return new Deflater(level);
+    }
+
+    public static Inflater getInflater(){
+        return new Inflater();
     }
 }
