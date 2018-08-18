@@ -24,39 +24,49 @@ public class ZipTest {
         e();
         f();
         i();
+
+        /*byte[] bytes = new byte[20];
+        ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
+        for (int i = 100000; i < 100005; i++) {
+            buf.writeInt(i);
+        }
+        buf.readBytes(bytes,0,buf.readableBytes());
+        for (int i = 0; i < 20; i+=4) {
+            System.out.println(getInt(bytes, i));
+        }*/
     }
 
-    /**
-     * 无填充加密
-     */
+
     public static void e() throws Exception{
         int bufferSize = 1024 * 1024;
         ByteBuf byteBuf = ByteBufAllocator.DEFAULT.heapBuffer(bufferSize);
         Deflater deflater = ZipUtil.getDeflater(9);
         Cipher cipher = AES.getCipher("123456", Cipher.ENCRYPT_MODE);
-        BufferedInputStream reader = new BufferedInputStream(new FileInputStream(new File("C:\\Users\\Administrator\\Desktop\\111")),bufferSize);
-        OutputStream writer = new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\222"), true);
-        byte[] bytes = new byte[bufferSize];
-        int max = 0;
-        int len;
+        BufferedInputStream reader = new BufferedInputStream(new FileInputStream(new File("/Users/doraemoner/Documents/111")),bufferSize);
+        OutputStream writer = new FileOutputStream(new File("/Users/doraemoner/Documents/222"), true);
+        int read;
         List<Integer> list = new ArrayList<>();
-        while ((reader.read(bytes)) != -1){//每次读1M
-            byte[] deflate = ZipUtil.deflate(bytes, deflater);//压缩后长度不确定
-            max ++;
-            len = deflate.length;
-            byteBuf.writeBytes(deflate,0,len);//先保存已知大小
-            list.add(len);
-            System.out.println("count: " + max + ", length: " + len);
+        byte[] bytes = new byte[bufferSize];
 
+        while ((read = reader.read(bytes)) != -1){//每次读1M
+            byte[] deflate;
+            if (read < bufferSize){
+                byte[] by = new byte[read];
+                System.arraycopy(bytes,0,by,0,read);
+                deflate = ZipUtil.deflate(by, deflater);
+            }else {
+                deflate = ZipUtil.deflate(bytes, deflater);
+            }
+            byteBuf.writeBytes(deflate,0,deflate.length);
+            list.add(deflate.length);
         }
-        System.out.println("before append: " + byteBuf.readableBytes());
+
         Integer[] objects = new Integer[list.size()];
         list.toArray(objects);
         for (Integer object : objects) {
             byteBuf.writeInt(object); //每次压缩后的长度
         }
         byteBuf.writeInt(list.size()); //压缩的次数
-        System.out.println("after append: " + byteBuf.readableBytes());
 
         byte[] b= new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(b,0,byteBuf.readableBytes());
@@ -66,40 +76,29 @@ public class ZipTest {
         writer.write(aFinal,0,aFinal.length);
     }
 
-    /**
-     * 无填充解密
-     */
+
     public static void f() throws Exception{
         int bufferSize = 1024 * 1024;
         Cipher cipher = AES.getCipher("123456", Cipher.DECRYPT_MODE);
-        BufferedInputStream reader = new BufferedInputStream(new FileInputStream(new File("C:\\Users\\Administrator\\Desktop\\222")),bufferSize);
+        BufferedInputStream reader = new BufferedInputStream(new FileInputStream(new File("/Users/doraemoner/Documents/222")),bufferSize);
         byte[] byteArray = IOUtils.toByteArray(reader);
-        OutputStream writer = new FileOutputStream(new File("C:\\Users\\Administrator\\Desktop\\333"), true);
+        OutputStream writer = new FileOutputStream(new File("/Users/doraemoner/Documents/333"), true);
         Inflater inflater = ZipUtil.getInflater();
-        byte[] bytes = new byte[4];
 
         byte[] doFinal = cipher.doFinal(byteArray);
         int length = doFinal.length;
         System.out.println("解密出来数组长度: "+ length);
 
-        for (int i = 3; i >= 0 ; i--) {
-            bytes[4 -1 -i] = doFinal[length-1 - i];
-        }
-        int len = getInt(bytes,0);//压缩的次数
-        System.out.println("压缩的次数: " + len);
-        bytes = new byte[len * 4];
-        for (int i = len * 4 -1; i >= 0 ; i--) {
-            bytes[len * 4- 1 -i] = doFinal[length-1 - i];
-        }
-        int[] t = new int[len];
-        for (int i = 0,j = 0; i < len; i++,j+=3) {
-            t[i] = getInt(bytes,j);
+        int len = getInt(doFinal,length - 4);//压缩的次数
+
+        int[] arr = new int[len];
+        for (int i = 0,j = length - (len * 4 + 4); i < len ; i++,j+=4) {
+            arr[i] = getInt(doFinal,j);
         }
         int index = 0;
-        int count = 0;
-        for (int i : t) {
-            count ++;
-            System.out.println("count: " + count + ", length: " + i);
+        byte[] bytes ;
+        for (int i : arr) {
+            bytes = new byte[i];
             System.arraycopy(doFinal,index,bytes,0,i);
             ZipUtil.inflate(bytes, inflater,writer);
             index += i;
@@ -115,11 +114,11 @@ public class ZipTest {
      * 比对md5
      */
     public static void i() throws Exception{
-        byte[] bytes = IOUtils.toByteArray(new FileInputStream(new File("C:\\Users\\Administrator\\Desktop\\333")));
+        byte[] bytes = IOUtils.toByteArray(new FileInputStream(new File("/Users/doraemoner/Documents/333")));
         System.out.println("333 :" + bytes.length);
         String s = MD5.md5(bytes);
 
-        byte[] bytes1 = IOUtils.toByteArray(new FileInputStream(new File("C:\\Users\\Administrator\\Desktop\\111")));
+        byte[] bytes1 = IOUtils.toByteArray(new FileInputStream(new File("/Users/doraemoner/Documents/111")));
         System.out.println("111 :" + bytes1.length);
         String s1 = MD5.md5(bytes1);
 
@@ -127,8 +126,8 @@ public class ZipTest {
     }
 
     public static void p(){
-        File f1 = new File("C:\\Users\\Administrator\\Desktop\\222");
-        File f2 = new File("C:\\Users\\Administrator\\Desktop\\333");
+        File f1 = new File("/Users/doraemoner/Documents/222");
+        File f2 = new File("/Users/doraemoner/Documents/333");
         if (f1.exists()) f1.delete();
         if (f2.exists()) f2.delete();
     }
@@ -192,7 +191,7 @@ public class ZipTest {
      */
     public static void d() throws Exception{
         RandomAccessFile file = new RandomAccessFile(
-                new File("C:\\Users\\Administrator\\Desktop\\111"),"rw");
+                new File("/Users/doraemoner/Documents/111"),"rw");
         FileChannel channel = file.getChannel();
         ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024);
         for (int i = 0; i < 500000; i++) {

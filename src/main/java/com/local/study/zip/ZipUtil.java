@@ -3,8 +3,6 @@ package com.local.study.zip;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -76,9 +74,10 @@ public class ZipUtil {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         compressor.setInput(bytes);
         compressor.finish();
-        final byte[] buf = new byte[2048];
+        final byte[] buf = new byte[1024 * 1024];
         int count;
-        while ((count = compressor.deflate(buf)) != 0) {
+        while (!compressor.finished()) {
+            count = compressor.deflate(buf);
             bos.write(buf, 0, count);
         }
         compressor.reset();
@@ -100,9 +99,10 @@ public class ZipUtil {
 
     public static void inflate(byte[] bytes,Inflater inflater, OutputStream writer) throws Exception{
         inflater.setInput(bytes);
-        final byte[] buf = new byte[2048];
+        final byte[] buf = new byte[1024 * 1024];
         int count;
-        while ((count = inflater.inflate(buf)) > 0) {
+        while (!inflater.finished()) {
+            count = inflater.inflate(buf);
             writer.write(buf, 0, count);
         }
         inflater.reset();
@@ -111,9 +111,10 @@ public class ZipUtil {
     public static byte[] inflate(byte[] bytes,Inflater inflater) throws Exception{
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         inflater.setInput(bytes);
-        final byte[] buf = new byte[2048];
+        final byte[] buf = new byte[1024 * 1024];
         int count;
-        while ((count = inflater.inflate(buf)) != 0) {
+        while (!inflater.finished()) {
+            count = inflater.inflate(buf);
             bos.write(buf, 0, count);
         }
         inflater.reset();
